@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#fff7fb">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <title>いけめんだいすき</title>
+  <link rel="stylesheet" href="./style.css?v=3">
+</head>
+<body>
+  <main class="shell">
+    <section id="loadingView" class="panel center">
+      <div class="spinner"></div>
+      <p>メンバーを準備中…</p>
+    </section>
+
+    <section id="errorView" class="panel center hidden">
+      <div class="big-icon">⚠️</div>
+      <h1>読み込みに失敗しました</h1>
+      <p id="errorText" class="muted"></p>
+      <button class="primary" onclick="location.reload()">もう一度読み込む</button>
+    </section>
+
+    <section id="startView" class="panel hero hidden">
+      <p class="eyebrow">IKEMEN DAISUKI</p>
+      <h1>いけめん<br>だいすき</h1>
+      <p class="lead"><strong id="memberCount">293</strong>人から、顔が好きな9人を決めよう ♡</p>
+      <p class="muted">推し・演技・性格はいったん置いといて、顔だけで直感勝負。</p>
+
+      <div class="filter-card">
+        <p class="filter-title">今回まぜる人</p>
+        <label><input type="checkbox" id="filterStarto" checked> STARTO・グループ所属ジュニア <span id="countStarto"></span></label>
+        <label><input type="checkbox" id="filterUngrouped" checked> 高校生以上の無所ジュニア <span id="countUngrouped"></span></label>
+        <label><input type="checkbox" id="filterActors" checked> 俳優 <span id="countActors"></span></label>
+      </div>
+
+      <div class="info-card">
+        <div><strong>🌱 予選</strong><span id="prelimScreensPreview">約37画面</span></div>
+        <p>1画面8人前後。顔が好きな人を最大3人まで選択。</p>
+        <small>選ばなかった人はここで脱落。迷ったら残してOK。</small>
+      </div>
+      <div class="info-card">
+        <div><strong>🔥 本選 → 👑 決勝</strong><span>TOP9まで</span></div>
+        <p>本選は候補同士を3ROUND比較。上位18人から最後は二択。</p>
+      </div>
+
+      <div id="photoWarning" class="notice soft hidden"></div>
+      <button id="startBtn" class="primary big">はじめる</button>
+      <button id="resumeBtn" class="secondary big hidden">前回の続きから</button>
+      <button id="restartBtn" class="ghost hidden">最初からやり直す</button>
+      <p class="tiny">友だち用 / ログイン不要 / 途中経過はこの端末にだけ保存</p>
+
+      <details class="about">
+        <summary>このサイトについて</summary>
+        <div>
+          <p>個人で楽しむための非公式ファンサイトです。各所属事務所・出演者・権利者とは関係ありません。</p>
+          <p>検索エンジン向けに noindex を設定していますが、URLそのものを知っている人のアクセスを技術的に完全遮断するものではありません。</p>
+          <p>人物写真は公開プロフィール等の画像を外部参照しています。画像の権利は各権利者に帰属します。</p>
+          <p>追加156人は画像参照設定済みです。外部画像が変更・削除された場合は <code>assets/photos/&lt;ID&gt;.jpg</code> を置けば差し替えできます。</p>
+        </div>
+      </details>
+    </section>
+
+    <section id="prelimView" class="hidden">
+      <header class="stage-header">
+        <div class="stage-row"><div><span class="chip">🌱 予選</span><strong id="prelimProgress"></strong></div><button id="homeFromPrelim" class="text-btn">トップへ</button></div>
+        <div class="progress"><div id="prelimBar"></div></div>
+        <h2>この中で好きな顔を選んでね</h2>
+        <p>複数OK。最大3人まで。</p>
+      </header>
+      <div id="prelimGrid" class="grid"></div>
+      <div class="action-bar">
+        <button id="prelimBack" class="secondary">← 前へ</button>
+        <span id="prelimSelected" class="status">0 / 3</span>
+        <button id="prelimNext" class="primary">次へ →</button>
+      </div>
+    </section>
+
+    <section id="prelimDoneView" class="panel center hidden">
+      <div class="big-icon">🎉</div>
+      <p class="eyebrow">PRELIMINARY CLEAR</p>
+      <h1>予選終了！</h1>
+      <p class="lead">候補は <strong id="survivorCount"></strong> 人。</p>
+      <p id="prelimDoneText" class="muted"></p>
+      <div id="survivorPreview" class="mini-preview"></div>
+      <button id="toMain" class="primary big">🔥 本選へ</button>
+      <button id="restartFromPrelim" class="ghost">予選からやり直す</button>
+    </section>
+
+    <section id="mainIntroView" class="panel center hidden">
+      <div class="big-icon">🔥</div>
+      <p class="eyebrow">MAIN ROUND</p>
+      <h1>本選</h1>
+      <p class="lead">各画面で<strong>1位 → 2位</strong>を選んでね。</p>
+      <p class="muted">3ROUND繰り返して、総合点上位18人を決勝へ。</p>
+      <button id="mainStart" class="primary big">本選スタート</button>
+    </section>
+
+    <section id="mainView" class="hidden">
+      <header class="stage-header">
+        <div class="stage-row"><div><span class="chip hot">🔥 本選</span><strong id="mainRound"></strong></div><button id="homeFromMain" class="text-btn">トップへ</button></div>
+        <div class="progress"><div id="mainBar" class="hotbar"></div></div>
+        <h2 id="mainPrompt">① 一番好きな顔は？</h2>
+        <p id="mainSub">まず1位をタップ</p>
+      </header>
+      <div id="mainGrid" class="grid main-grid"></div>
+      <div class="action-bar">
+        <button id="mainBack" class="secondary">← 前へ</button>
+        <span id="mainScreen" class="status"></span>
+        <button id="mainNext" class="primary">次へ →</button>
+      </div>
+    </section>
+
+    <section id="finalistsView" class="panel center hidden">
+      <div class="big-icon">👑</div>
+      <p class="eyebrow">FINALISTS</p>
+      <h1>決勝進出18人！</h1>
+      <p class="muted">ここからは完全二択。TOP9だけを決めます。</p>
+      <div id="finalistsPreview" class="mini-preview"></div>
+      <button id="finalStart" class="primary big">👑 決勝へ</button>
+    </section>
+
+    <section id="finalView" class="hidden">
+      <header class="stage-header">
+        <div class="stage-row"><div><span class="chip finalchip">👑 決勝</span><strong id="finalProgress"></strong></div><button id="homeFromFinal" class="text-btn">トップへ</button></div>
+        <div class="progress"><div id="finalBar" class="finalbar"></div></div>
+        <h2>どっちの顔が好き？</h2>
+        <p>直感で1人をタップ</p>
+      </header>
+      <div id="duel" class="duel"></div>
+      <div class="action-bar final-action">
+        <button id="finalUndo" class="secondary">↶ ひとつ前</button>
+        <span class="status">TOP9選考中</span>
+        <span class="tiny">タップで自動進行</span>
+      </div>
+    </section>
+
+    <section id="resultView" class="result hidden">
+      <div class="result-head">
+        <p class="eyebrow">MY IKEMEN 9</p>
+        <h1>わたしの<br>いけめん9 ♡</h1>
+        <p>顔が好きなTOP9</p>
+      </div>
+      <div id="resultGrid" class="result-grid"></div>
+      <section class="ranking-text"><h2>TOP9</h2><div id="rankingText"></div></section>
+      <button id="copyBtn" class="primary big">結果をコピー</button>
+      <p id="copyNotice" class="tiny hidden">コピーしたよ ✓</p>
+      <button id="resultRestart" class="ghost">もう一度やる</button>
+    </section>
+  </main>
+
+  <template id="cardTemplate">
+    <button class="card" type="button">
+      <div class="photo-wrap">
+        <img class="photo" alt="">
+        <div class="photo-fallback"><span>PHOTO<br>未設定</span></div>
+        <div class="heart">♥</div>
+        <div class="medal hidden"></div>
+      </div>
+      <div class="card-info"><strong class="name"></strong><span class="group"></span></div>
+    </button>
+  </template>
+
+  <template id="resultTemplate">
+    <article class="result-card">
+      <div class="result-photo-wrap"><img class="result-photo" alt=""><div class="result-fallback">PHOTO<br>未設定</div><span class="rank"></span></div>
+      <div class="result-info"><strong></strong><span></span></div>
+    </article>
+  </template>
+
+  <script type="module" src="./app.js?v=3"></script>
+</body>
+</html>
